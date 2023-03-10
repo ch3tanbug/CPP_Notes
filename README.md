@@ -868,3 +868,601 @@ Example-
             return 0;
     }
 ```                   
+## Friend Functions
+Friend functions are not member functions of any class rather just a foreign function that get permission from the class to be able to fetch private data. The permission to the function in class is given as follows-
+
+```cpp    
+    class complex{
+        friend complex sumcomplex(complex o1,complex o2);     // declaration in class to give access 
+        //friend class-name function-name(arguments)
+    };
+    complex sumcomplex(complex o1,complex o2){
+        any commands;
+    }
+```
+    
+### Properties of friend function-
+1. Not in the scope of class 
+2. Since it is not in the scope of class , it cannot be called from object of that class in below example
+`c1.sumcomplex()==invalid.`   
+3. Can be invoked without the help of any object.
+4. Usually contains the objects as arguments.
+5. Can be declared inside public or private section of the class
+
+Example-
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class complex{
+                int a;
+                int b;
+                public:
+                friend complex addsum(complex o1,complex o2);  // declaring friend function
+                void setnumber(int n1,int n2){
+                        a=n1;
+                        b=n2;
+                }
+                void printnumber(void){
+                        cout<<"your number is "<<a<<" + "<<b<<"i"<<endl;
+                }
+        };
+
+        complex addsum(complex o1,complex o2){
+                complex o3;
+                o3.setnumber((o1.a+o2.a),(o1.b+o2.b));
+                return o3;
+        }
+
+        int main(){
+                complex c1,c2,sum;
+                c1.setnumber(1,4);
+                c1.printnumber();
+                c2.setnumber(5,8);
+                c2.printnumber();
+                sum=addsum(c1,c2);
+                sum.printnumber();
+                return 0;
+        }
+```
+    
+### Friend classes and Member friend functions
+Individually declaring functions of other class as friends-
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class complex;        // telling compiler that complex class exits so that no error is reciever in calculator class
+
+        class calculator{
+                public:
+                int add(int a , int b){
+                        return (a+b);
+                }
+                int sumrealcomplex(complex,complex);  // cant define fucntion here because cant acess private members of class complex until class complex is declared
+                int sumcompcomplex(complex,complex);
+        };
+
+        class complex{
+                int a;
+                int b;
+                friend int calculator :: sumrealcomplex(complex,complex);  // making sumrealcomplex friend function
+                friend int calculator :: sumcompcomplex(complex,complex);
+                public:
+                void setnumber(int n1,int n2){
+                        a=n1;
+                        b=n2;
+                }
+                void printnumber(void){
+                        cout<<"your number is "<<a<<" + "<<b<<"i"<<endl;
+                }
+        };
+
+        int calculator :: sumrealcomplex(complex o1,complex o2){   // defining function here because now class complex is declared and we can access the private members
+                return(o1.a+o2.a);
+        }
+        int calculator :: sumcompcomplex(complex o1,complex o2){   // defining function here because now class complex is declared and we can access the private members
+                return(o1.b+o2.b);
+        }
+
+        int main(){
+                complex a1,b1;
+                a1.setnumber(1,3);
+                b1.setnumber(7,8);
+                calculator calc;
+                int sum=calc.sumrealcomplex(a1,b1);
+                int sumc=calc.sumcompcomplex(a1,b1);
+                cout<<"The sum of real part of complex number is "<<sum<<endl;
+                cout<<"The sum of complex part of complex number is "<<sumc<<endl;
+                return 0;
+        }
+```
+    
+Declaring the entire other class as friend (using the same code above)
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class complex;        // telling compiler that complex class exits so that no error is reciever in calculator class
+
+        class calculator{
+                public:
+                int add(int a , int b){
+                        return (a+b);
+                }
+                int sumrealcomplex(complex,complex);  // cant define fucntion here because cant acess private members of class complex until class complex is declared
+                int sumcompcomplex(complex,complex);
+        };
+
+        class complex{
+                int a;
+                int b;
+                friend class calculator;  // making the whole class friend
+                public:
+                void setnumber(int n1,int n2){
+                        a=n1;
+                        b=n2;
+                }
+                void printnumber(void){
+                        cout<<"your number is "<<a<<" + "<<b<<"i"<<endl;
+                }
+        };
+
+        int calculator :: sumrealcomplex(complex o1,complex o2){   // defining function here because now class complex is declared and we can access the private members
+                return(o1.a+o2.a);
+        }
+        int calculator :: sumcompcomplex(complex o1,complex o2){   // defining function here because now class complex is declared and we can access the private members
+                return(o1.b+o2.b);
+        }
+
+        int main(){
+                complex a1,b1;
+                a1.setnumber(1,3);
+                b1.setnumber(7,8);
+                calculator calc;
+                int sum=calc.sumrealcomplex(a1,b1);
+                int sumc=calc.sumcompcomplex(a1,b1);
+                cout<<"The sum of real part of complex number is "<<sum<<endl;
+                cout<<"The sum of complex part of complex number is "<<sumc<<endl;
+                return 0;
+        }
+```
+- Make a program that swaps the values of variables of two different classes
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class c2;  // forward declaration
+        class c1{
+                int val;
+                public:
+                friend void exchange(c1 &,c2 &);  // can be declared anywhere either in private or in public
+                void setdata(int a){
+                        val=a;
+                }
+                void display(void){
+                        cout<<val<<endl;
+                }
+        };
+
+        class c2{
+                int val;
+                friend void exchange(c1 &,c2 &);   // making exchange as a friend function
+                public:
+                void setdata(int a){
+                        val=a;
+                }
+                void display(void){
+                        cout<<val<<endl;
+                }
+        };
+
+        void exchange(c1 &a,c2 &b){            // using &(reference operator) to swap values
+                int temp=a.val;
+                a.val=b.val;
+                b.val=temp;
+        }
+
+        int main(){
+                c1 a1;
+                c2 a2;
+                a1.setdata(4);
+                a2.setdata(8);
+                exchange(a1,a2);
+                cout<<"The value of a1 after swapping is : ";
+                a1.display();
+                cout<<endl;
+                cout<<"The value of a2 after swapping is : ";
+                a2.display();
+                return 0;
+
+        }
+```
+## Constructors
+Constructor is a special member function with same name as of class. It is used to initialize the objects of its class. It is invoked whenever an object is created.
+
+Syntax-
+```cpp    
+            #include<iostream>
+            using namespace std;
+
+            class complex{
+                    int a,b;
+                    public:
+                    complex(void);   // declaring a constructor must be same as class name
+                    void printnumber(void){
+                    cout<<"your number is "<<a<<" + "<<b<<"i"<<endl;
+                    }
+            };
+            complex :: complex(void){          // defining a connstructor (default constructor with no values)
+                    a=10;
+                    b=0;
+            }
+            int main(){
+                    complex c;
+                    c.printnumber();
+                    return 0;
+
+            }
+```
+### Characteristics of constructor -
+1. It should be declared in public section of the class.
+2. They are automatically invoked whenver an object is created.
+3. They cannot return values and do not have return types.
+4. It can have default arguments.
+5. We cannot refer to their address.
+
+### Parameterized and Default constructor
+- A constructor that accepts no parameters is called a default constructor.
+- A constructor that accepts parameters is called a parameterized constructor.
+    
+- Creating a program to calculate distance between two points using parameterized constructor and friend fucntion
+```cpp
+        #include<iostream>
+        #include<cmath>
+        using namespace std;
+
+        class point{
+                int x,y;
+                friend point distance(point,point);
+                public:
+                point(int a,int b){  // parameterized constructor
+                        x=a;
+                        y=b;
+                }
+                void display(void){
+                        cout<<"The point is ("<<x<<" , "<<y<<")"<<endl;
+                }
+        };
+        point distance(point a,point b){        // friend function
+                float distance1 = (b.x-a.x)*(b.x-a.x);
+                float distance2 = (b.y-a.y)*(b.y-a.y);
+                float finaldist = sqrt(distance1+distance2);
+                cout<<"The difference between point is "<<finaldist;
+
+        }
+        int main(){
+                point p(1,2);
+                p.display();
+                point q(7,8);
+                q.display();
+                distance(p,q);
+                return 0;
+        }
+```
+    
+- Note - Constrcutors can also be given pre-defined value in arguments while declaring like  
+```cpp
+complex(int a,int b=9){   // assigning b=9 by default
+            x-a;
+            y=b;
+        }
+        int main(){
+            complex c1(4);  // automatically b will get 9
+        }
+```
+    
+## Constructor Overloading
+Similarly like function overloading Constrcutors can also be overloaded
+    
+Example-
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class complex{
+                int a,b;
+                public:
+                complex(int x,int y){
+                        a=x;
+                        b=y;
+                }
+                complex(int x){      // constructor over-loading
+                        a=x;
+                        b=0;
+                }
+                complex(){
+                        a=0;
+                        b=0;
+                }
+                void printnumber(void){
+                cout<<"your number is "<<a<<" + "<<b<<"i"<<endl;
+                }
+        };
+
+        int main(){
+                complex c1(4,5);
+                c1.printnumber();
+                complex c2(5);
+                c2.printnumber();
+                complex c3;
+                c3.printnumber();
+                return 0;
+        }
+```
+    
+## Dynamic initialization of objects using constructor
+When creating multiple constructors for dynamic initialization a blank constructor like 
+`constructor(){}` must be created so that before dynamically allocating the constrcutor to objects according to 
+their types the compiler can give them an empty constrcutor and avoid errors.
+
+Example-
+```cpp    
+        #include<iostream>
+        using namespace std;
+
+        class bankdeposit{
+                int principal,years;
+                float interestrate,returnvalue;
+                public:
+                bankdeposit(){}; // ceating an empty constructor
+                bankdeposit(int p,int y,float r); //r can be like 0.04
+                bankdeposit(int p,int y,int r); // r can be value like 14
+                void show();
+        };
+        bankdeposit :: bankdeposit(int p,int y,float r){
+                principal=p;
+                interestrate=r;
+                years=y;
+                returnvalue=principal;
+                for(int i=0;i<y;i++){
+                        returnvalue=returnvalue*(1+r);
+                }
+        }
+        bankdeposit :: bankdeposit(int p,int y,int r){
+                principal=p;
+                interestrate=float(r)/100;
+                years=y;
+                returnvalue=principal;
+                for(int i=0;i<y;i++){
+                        returnvalue=returnvalue*(1+interestrate);
+                }
+        }
+        void bankdeposit :: show(){
+                cout<<endl<<"The principal amount was "<<principal<<endl<<" Return value after "<<years<<" years is"
+                <<returnvalue<<endl;
+        }
+
+        int main(){
+                bankdeposit bd1,bd2,bd3;
+                int p,y;
+                int R;
+                float r;
+                cout<<" Enter the value of p, y and r: "<<endl;
+                cin>>p>>y>>r;
+                bd1=bankdeposit(p,y,r);
+                bd1.show();
+                cout<<" Enter the value of p, y and R: "<<endl;
+                cin>>p>>y>>R;
+                bd2=bankdeposit(p,y,R);
+                bd2.show();
+                return 0;
+        }
+```
+    
+## Copy Constructor
+Copy constructor is used to copy the members of one object to another by calling the constrcutor. When
+no copy constrcutor is present in the class the compiler calls its own copy constructor.
+
+Example-
+```cpp    
+    #include<iostream>
+    using namespace std;
+
+    class number{
+            int a;
+            public: 
+            number(){};
+            number(int n){
+                    a=n;
+            }
+            number(number &n){      // creating a copy constructor
+            a=n.a;
+            }
+            void display(){
+                    cout<<"The number for this object is "<<a<<endl ;
+                        }
+    };
+
+    int main(){
+            number x,y,z(45);
+            z.display();
+            // Various ways to invoke copy constructor
+            y=number(z); // copy constrcutor will be called
+            y.display();
+            x=y; // copy constrcutor will not be called
+            number x1=y;  // copy constructor will be called
+            x1.display();
+            return 0;
+    }
+```
+    
+## Destructor
+It is used to clear the dynamic allocated memory whenever a constructor is destroyed. It does not accept any arguments nor returns any value. It is implicitly called by the compiler itself.
+    
+Syntax to define destructor -
+```cpp    
+        ~classname(arguments){
+            code
+        }
+
+    example to understand destructor-
+        #include<iostream>
+        using namespace std;
+
+        int count=0;
+        class num{
+                public:
+                num(){
+                        count++;
+                        cout<<"This is the time when constructor is called for object number "<<count<<endl;
+                }
+                ~num(){
+                        cout<<"This is the time when destructor is called for object number "<<count<<endl;
+                        count--;
+                }
+        };
+
+        int main(){
+                cout<<"entering main"<<endl;
+                cout<<"creating an object"<<endl;
+                num num1;
+                {
+                        cout<<"Entering this block "<<endl;
+                        cout<<"Creating two more objects "<<endl;
+                        num n2,n3;
+                        cout<<"Exiting this block"<<endl;
+                }
+                cout<<"back to main"<<endl;
+                return 0;
+        }
+```
+    
+### Inheritance in C++
+1. The concept of reusability in C++ is supported using Inheritance.
+2. We can reuse the properties of an existing class by inheriting from it.
+3. The existing class is called the base class.
+4. The new class which is inherited is called the derived class.
+5. Reusing classes saves time and money.
+6. There are different types of inheritance in C++.
+
+### Importance of inheritance in C++ :
+1. Reusability is a very important feature of OOPs.
+2. In C++ we can reuse a class and add additional features to it.
+3. Reusing classes saves time and money.
+4. Reusing already tested and debugged class will save a lot of effort of developing and debugging the same thing again.
+
+### Forms of inheritance in C++ :
+1. Single inheritance - A derived class with only one base class
+2. Multiple inheritance - A derived class with more than one base class
+3. Hierarchial inheritance - Several derived classes from single base class
+4. Multilevel inheritance - Deriving a class from already derived class
+5. Hybrid inheritance - 
+    1. Hybrid inheritance is a combination of multiple inheritance and multilevel inheritance.
+    2. A class is derived from two classes as in multiple inheritance.
+    3. However, one of the parent classes is not a base class.
+
+- Syntax for making derived class 
+```cpp
+    class derived-class-name : visibility-mode base-class-name{
+        class members methods etc.
+    }
+```
+- Note- Default visibility mode is private.
+- Public-visibility-mode : Public members of the base class becomes public members of derived class.
+- Private-visibility-mode : Public members of the base class becomes private members of derived class.
+- Note- Private members of a base class will never be inherited.
+
+Example to understand visibility -
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        //Base class
+        class employee{
+                public:
+                int id;
+                float salary;
+                employee(int id1){
+                        id=id1;
+                        salary=34.00;
+                }
+                employee(){};
+        };
+        class programmer : employee{    // making a derived class 
+                public:
+                programmer(int impid){
+                        id=impid;
+                }
+                int languagecode=9;
+                void getdata(){
+                        cout<<id<<endl;
+                }
+        };
+
+        int main(){
+                employee john(34),rocky(23);
+                cout<<john.salary<<endl;
+                cout<<rocky.salary<<endl;
+                programmer skillif(35);
+                cout<<skillif.languagecode<<endl;
+                skillif.getdata();
+                // can't access id directly by skillif.id cause we inherited members privately
+                return 0;
+        }
+```
+    
+## Single Inheritance
+Example -
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class base{
+                int data1;  // private by deafult and inheritable
+                public:
+                int data2;
+                void setdata();
+                int getdata1();
+                int getdata2();
+
+        };
+
+        void base :: setdata(){
+                data1=10;
+                data2=20;
+        }
+
+        int base :: getdata1(){
+                return data1;
+        }
+
+        int base :: getdata2(){
+                return data2;
+        }
+
+        class derived : public base{ // class is being derived publically
+                int data3;
+                public:
+                void process();
+                void display();
+        };
+
+        void derived :: process(){
+                data3=data2*getdata1();
+        }
+
+        void derived :: display(){
+                cout<<"value of data1 is: "<<getdata1()<<endl;
+                cout<<"value of data2 is: "<<data2<<endl;
+                cout<<"value of data3 is: "<<data3<<endl;
+        }
+
+        int main(){
+                derived der;
+                der.setdata();
+                der.process();
+                der.display();
+                return 0;
+        }
+```    
