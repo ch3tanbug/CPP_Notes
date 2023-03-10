@@ -1466,3 +1466,98 @@ Example -
                 return 0;
         }
 ```    
+
+## Protected Acess Modifier in C++
+A protected member variable or function is very similar to a private member but it provided one additional benefit that they can be accessed in child classes which are called derived classes
+
+### For a protected member :
+                           Public Derivation    Private Derivation      Protected Derivation
+    1. Private members     Not inherited        Public                  Not inherited
+    2. Protected members   Protected            Private                 Protected
+    3. Public members      Public               Private                 Protected
+
+Example-
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class base{
+                protected:
+                int a;
+                private:
+                int b;
+        };
+
+        class derived : protected base{};
+        int main(){
+                base b;
+                derived d;
+                cout<<d.a;  // will not wor as a is protected and will be inherited as protected only member functions of derived class can access it.
+                return 0;
+        }
+```
+    
+## Multilevel Inheritance
+Notes:
+- If we are inheriting B from A and C from B: `[A--->B--->C]`
+    1. A is the base class for B and B is the base class for C 
+    2. A--->B--->C is called inheritance path
+    
+Example-
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class student{
+                protected:
+                int rollno;
+                public:
+                void setno(int);
+                void getno(void);
+        };
+
+        void student :: setno(int n){
+                rollno=n;
+        }
+
+        void student :: getno(){
+                cout<<"The roll no is: "<<rollno<<endl;
+        }  
+
+        class exam : public student{
+                protected:
+                float maths;
+                float physics;
+                public:
+                void setmarks(float,float);
+                void getmarks(void);
+        };
+
+        void exam :: setmarks(float n1,float n2){
+                maths=n1;
+                physics=n2;
+        }
+
+        void exam :: getmarks(){
+                cout<<"The marks obtained in maths are: "<<maths<<endl;
+                cout<<"The marks obtained in physics are: "<<physics<<endl;
+        }
+
+        class result : public exam{
+                float percentage;
+                public:
+                void display(){
+                        getno();
+                        getmarks();
+                        cout<<"Your percentage is "<<(maths+physics)/2<<"%"<<endl;
+                }
+        };
+
+        int main(){
+                result chetan;
+                chetan.setno(11);
+                chetan.setmarks(94.0,93.0);
+                chetan.display();
+                return 0;
+        }
+```    
