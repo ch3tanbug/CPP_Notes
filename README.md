@@ -1561,3 +1561,1140 @@ Example-
                 return 0;
         }
 ```    
+
+## Multiple Inheritance
+- Syntax-
+```cpp
+        class derived : visibility-mode base1 , visibility-mode base2{
+            class body of derived
+        }
+```
+
+Example of multiple inheritance -
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class base1{
+                protected:
+                int base1int;
+                public:
+                void set_base1int(int a){
+                        base1int=a;
+                }
+        };
+
+        class base2{
+                protected:
+                int base2int;
+                public:
+                void set_base2int(int a){
+                        base2int=a;
+                }
+        };
+
+        class derived : public base1 , public base2{   // you can add as much base classes you want by writing class name with comma
+                public:
+                void show(){
+                        cout<<"The value of base1 is "<<base1int<<endl;
+                        cout<<"The value of base2 is "<<base2int<<endl;
+                        cout<<"The sum of both is "<<(base2int+base1int)<<endl;
+                }
+        };
+
+        int main(){
+                derived chetan;
+                chetan.set_base1int(4);
+                chetan.set_base2int(9);
+                chetan.show();
+                return 0;
+        }
+```
+## Ambiguity Resolution in Inheritance
+Many times two or more classes have the function created with the same name and when a class is derived from those
+two classes ambiguity occurs. To solve this we can define a function in the derived class and tell it to use 
+a function from a particular class.
+
+Example for the same -
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class base1{
+                public:
+                void greet(){
+                        cout<<"Hey how are you ?"<<endl;
+                }
+        };
+        class base2{
+                public:
+                void greet(){
+                        cout<<"kaise ho ? "<<endl;
+                }
+        };
+
+        class derived : public base1,public base2{
+                int a;
+                public:
+                void greet(){              // resolving the ambiguity by telling compiler to use base1 greet whenever greet is called in the derived class
+                        base1::greet();
+                }
+        };
+
+        int main(){
+                base1 base1obj;
+                base2 base2obj;
+                derived dervobj;
+                dervobj.greet();   // will use base1 greet function because we defined it above 
+                return 0;
+        }
+```
+
+If the derived class has a function written with the same name as the base class the compiler will use the 
+local function or override the base inherited function whenever an object from the derived class calls that function.
+
+## Virtual Base Class 
+Consider an instance where two classes are derived from a single base class "A" and further those two derived
+classes are also used to derived a new class. Diagram for reference
+`A-->B&C-->D` in this situation when b and c will give their variables to D they might give the copy of variables
+recieved from A two times ( as they both inherited same variable to A ) this results in ambiguity and to solve 
+this virtual base class is formed.
+    
+Syntax- 
+```cpp
+        derived class : virtual inheritance-mode base class{
+            code
+        }
+        derived : virtual public student{
+            code
+        }
+```    
+
+Example-
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class student{
+                protected:
+                int rollno;
+                public:
+                void setnumber(int a){
+                        rollno=a;
+                }
+                void printnumber(){
+                        cout<<"Your roll no is : "<<rollno<<endl;
+                }
+        };
+
+        class test : virtual public student{   // inheriting from student as virtual class 
+                protected:                     // we can write virtual public base class or public virtual base class both does the same thing
+                float maths,physics;
+                public:
+                void setmarks(float m1,float m2){
+                        maths=m1;
+                        physics=m2;
+                }
+                void printmarks(){
+                        cout<<"Your result is here: "<<endl
+                        <<"Maths "<<maths<<endl
+                        <<"Phsics "<<physics<<endl;
+                }
+        };
+
+        class sports : virtual public student{   // inheriting from virtual base class student 
+                protected:
+                float score;
+                public:
+                void setscore(float sc){
+                        score=sc;
+                }
+                void printscore(){
+                        cout<<"Your P.T score is: "<<score<<endl;
+                }
+        };
+
+        class result : public test , public sports{
+                private:
+                float total;
+                public:
+                void display(){
+                        total=maths+physics+score;
+                        printnumber();  // resolved ambiguity and prints rollno inherited from student only once due to virtual class
+                        printmarks();
+                        printscore();
+                        cout<<"Your total score is: "<<total<<endl;
+                }
+        };
+
+        int main(){
+                result chetan;
+                chetan.setnumber(11);
+                chetan.setmarks(75.00,93.00);
+                chetan.setscore(95.00);
+                chetan.display();
+
+                return 0;
+        }
+```
+
+## Constrcutors in Derived class 
+1. We can use constructors in derived classes in C++
+2. If base class constructor does not have any arguments, there is no need of constrcutor in derived class.
+3. But if there are one or more arguments in the base class constructor, derived class need to pass arguments to the base class constrcutor.
+4. If both base and derived class have constructors, base class constrcutor is executed first.
+
+## Constrcutors in Multiple Inheritance
+1. In multiple inheritance, base classes are constructed in the order in which they appear in the class declaration.
+2. In multilevel inheritance, the constructors are executed in the order of inheritance.
+
+## Special Syntax-
+    1. C++ supports an special syntax for passing arguments to multiple base classes.
+    2. The constructor of the derived class recieves all the arguments at once and then will pass the calls to the respective base classes.
+    3. The body is called after all the constructors are finished executing.
+
+`derived-constructor(arg1,arg2,arg3,....):base1-constructor(arg1,arg2):base2-constructor(arg3,arg4){
+        ....
+    }base1-constructor(arg1,arg2)`
+
+## Special case for Virtual Base Class -
+1. The constructors for virtual base classes are invoked before an nonvirtual base class.
+2. If there are multiple virtual base classes, they are invoked in order declared.
+3. Any non-virtual base class are then constructed before the derived class constructor is executed.
+
+Example of order of execution of constructor -
+
+Case 1-
+```cpp
+                class A : public B {
+                        // order of execution B() then A()
+                }
+```
+
+Case 2-
+```cpp
+                class A: public B,public C{
+                        // order of execution constructor B() -> C() -> A()
+                }
+```
+
+Case 3-
+```cpp
+                class A: public B, virtual public C{
+                        // order of execution C() then B() then A()
+                }
+```
+
+### Example of constructor execution in derived class :
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        class base{
+                int data;
+                public:
+                base(int i){
+                        data=i;
+                        cout<<"Base class constructor called"<<endl;
+                }
+                void printdatabase1(){
+                        cout<<"The value of data is "<<data;
+                }
+        };
+
+        class base2{
+                int data2;
+                public:
+                base2(int i){
+                        data2=i;
+                        cout<<"Base2 class constructor called"<<endl;
+                }
+                void printdatabase2(){
+                        cout<<"The value of data is "<<data2;
+                }
+        };
+
+        class derived : public base,public base2{     // if we make this like public base2,public base then base2 will run first but if we do same thing while assigning base contructors value through derived class it would not work
+                int derived1,derived2;
+                public:
+                derived(int a,int b,int c,int d):base(a),base2(b){  // derived class constructor calling both base class constructor and supplying them with value
+                        derived1=c;
+                        derived2=d;
+                        cout<<"Derived class constructor called"<<endl;
+                }
+                void printdataderived(){
+                        cout<<"The value of derived1 is "<<derived1<<endl;
+                        cout<<"The value of derived2 is "<<derived2<<endl;
+                }
+        };
+
+        int main(){
+                derived chetan(1,2,3,4);
+                chetan.printdatabase1();
+                return 0;
+        }
+```
+
+## Initialization list in constructor
+Syntax for initialization list in constructor- 
+```cpp
+                contsructor(argument-list) : initialization-section{
+                        assignment+othercode
+                }
+```
+
+Example-
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class test{
+                        int a,b;   // to run b(j),a(i+b) we should write here int b,a;
+                        public:
+                        test(int i,int j) : a(i),b(j){ 
+                // a will get value of i and b will get value of j because constructor list is initialize
+                // we can also use test(int i,int j) : a(i),b(a+j) as a is declared first but 
+                // we cannot use test(int i,int j) : b(j),a(i+b) because a is declared first and will get value first so till time a gets value b is still garbage value
+                                cout<<"Constrcutor is called "<<endl;
+                                cout<<"The value of a is "<<a<<endl;
+                                cout<<"The value of b is "<<b<<endl;
+                        }
+                };
+
+                int main(){
+                        test obj1(4,5);
+                        return 0;
+                }
+```
+
+## The new keyword
+It is used to dynamically assign an integer 
+
+Syntax and example-
+```cpp
+                int *ptr = new int(40)  // will store 40 in value of pointer ptr
+```      
+
+It is replacement of code where we first declare and initialize a varibale just like a temporary variable 
+
+## Continue memory allocation using pointers
+By declaring a pointer and storing array in that using new keyword we can achieve contionous memory allocation
+
+Example -
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                int main(){
+                        int *arr= new int[4];
+                        arr[0]=1;
+                        *(arr+1)=2;   // same as arr[1]=2
+                        arr[2]=3;
+                        arr[3]=4;
+                        cout<<"The value at arr[0] is: "<<arr[0];
+                        cout<<"The value at arr[1] is: "<<arr[1];
+                        cout<<"The value at arr[2] is: "<<arr[2];
+                        return 0;
+                }
+```
+## Delete keyword/operator in c++
+Delete is used to deallocate memory for a C++ class object, the object's destructor is called before the object's memory is deallocated (if the object has a destructor). Delete is used to delete a single object initiated using new keyword whereas delete[] is used to delete a group of objects initiated with the new operator.
+
+Example (same as above using delete operator)-
+```cpp
+        #include<iostream>
+        using namespace std;
+
+        int main(){
+                int *arr= new int[4];
+                arr[0]=1;
+                arr[1]=2;
+                arr[2]=3;
+                arr[3]=4;
+                delete [] arr;  // delets the whole memory allocation and now program will print garbage value
+                cout<<"The value at arr[0] is: "<<arr[0];
+                cout<<"The value at arr[1] is: "<<arr[1];
+                cout<<"The value at arr[2] is: "<<arr[2];
+                return 0;
+        }
+```
+
+## Pointers to Objects
+We can use the -> operator to run any function on bhalf of the object that the pointer is pointing to.
+
+Like-
+```cpp
+                complex *ptr=new complex;
+                ptr->getdata();  // same work as below just two different syntax
+                (*ptr).getdata()
+```                
+Example-
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class complex{
+                        int real,imaginary;
+                        public:
+                        void getdata(){
+                                cout<<"The real part is : "<<real<<endl;
+                                cout<<"The imaginary part is : "<<imaginary<<endl;
+                        }
+                        void setdata(int a,int b){
+                                real=a;
+                                imaginary=b;
+                        }
+
+                };
+
+                int main(){
+                        complex c1;
+                        // complex *ptr=&c1;
+                        //or
+                        complex *ptr=new complex;
+                        c1.setdata(4,5);
+                        c1.getdata();
+                        // (*ptr).setdata(7,8); is exactly same as
+                        ptr->setdata(7,8);
+                        (*ptr).getdata();
+                        return 0;
+                }
+```
+## Array of pointers pointing to many objects
+If we use a pointer to point to an array of objects the *ptr will store the address of the first object in 
+the array and to access the rest we can add 1 to the pointer
+
+Example -
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class shop{
+                        int id;
+                        float price;
+                        public:
+                        void setdata(int a,float b){
+                                id=a;
+                                price=b;
+                        }
+                        void getdata(){
+                                cout<<"Code of this item is "<<id<<endl;
+                                cout<<"Price of this item is "<<price<<endl;
+                        }
+                };
+
+                int main(){
+                        int size=2;
+                        int p,i;
+                        float q;
+                        shop *ptr=new shop[size];
+                        shop *ptrtmp=ptr;
+                        for(i=0;i<size;i++){
+                                cout<<"Enter Id and price of item "<<i+1;
+                                cin>>p>>q;
+                                //(*ptr).setdata(p,q)
+                                ptr->setdata(p,q);
+                                ptr++;
+                        }       
+                        for(i=0;i<size;i++){
+                                cout<<"Item number: "<<i+1<<endl;
+                                ptrtmp->getdata();
+                                ptrtmp++;
+                        }
+                        return 0;
+                }
+```
+
+## This Pointer in C++
+While defining a function we cannot use same name for a varibale and ana argument as this will return garbage value
+```cpp
+                int a;
+                void func1(int a){
+                        a=a;      // this will return a garbage value
+                }
+```        
+
+To solve this problem this keyword in c++ comes to rescue:
+1. this->a=a // here this->a is referring to the private member of class
+2. this is a keyword which is a pointer which points to the object which invokes the member function 
+        
+Example-
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class a1{
+                        int a;
+                        public:
+                        a1 & setdata(int a){
+                                this->a=a;
+                                return *this;  // will return the object who called this member function and we can apply further functions on that
+                        }
+                        void getdata(){
+                                cout<<"The value of a is "<<a;
+                        }
+                };
+
+                int main(){
+                        a1 c;
+                        c.setdata(7).getdata();
+                        return 0;
+                }
+```
+
+## Polymorphism in C++
+One name and multiple forms eg- function overloading, virtual function,operator overloading
+
+Two types of Polymorphism in c++ :
+1. Compile time Polymorphism (you already know what function gonna run) - operator overloading , function overloading
+2. Run-time Polymorphism (object is binded and function is ran after the program executes)
+
+## Pointers to Derived Classes in C++
+Although we can point a pointer of base class with object of derived class but in case we invoke any member function,
+the base class function will be called.
+
+Sametype of pointers bind with functions of same type(or class) like complex *ptr pointer will bind with any member
+function of same class this is what is called late binding.
+
+Notes:
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class baseclass{
+                        public:
+                        int var_base;
+                        void display(){
+                                cout<<"displaying base class variable var_base "<<var_base<<endl;
+                        }
+                };
+                class derivedclass : public baseclass{
+                        public:
+                        int var_derived;
+                        void display(){
+                                cout<<"displaying base class variable var_base "<<var_base<<endl;
+                                cout<<"displaying base class variable var_derived "<<var_derived<<endl;
+                        }
+
+                };
+
+                int main(){
+                        baseclass *ptr=new derivedclass;  // base class pointer pointing derived class
+                        ptr->var_base=34;  // can be set as it is member of base class
+                        // ptr->var_derived=75 // cannot be set as it is a member of derived class
+                        ptr->display();
+                        derivedclass *dptr=new derivedclass; // derived class pointer pointing drived class
+                        dptr->var_base=995;
+                        dptr->var_derived=998;
+                        dptr->display();
+                        return 0;
+                }
+```
+
+## Virtual Functions
+Virtual functions are used to override the default behaviour of the base class pointer pointing to derived class
+when we make a base class function virtual we can use a base class pointer pointing to derived class to refer to a function
+in derived class.
+
+Example -
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                class baseclass{
+                        public:
+                        int var_base;
+                        virtual void display(){   // declaring function as virtual
+                                cout<<"displaying base class variable var_base "<<var_base<<endl;
+                        }
+                };
+                class derivedclass : public baseclass{
+                        public:
+                        int var_derived;
+                        void display(){
+                                cout<<"displaying base class variable var_base "<<var_base<<endl;
+                                cout<<"displaying base class variable var_derived "<<var_derived<<endl;
+                        }
+
+                };
+
+                int main(){
+                        baseclass *bptr;
+                        baseclass objbase;
+                        derivedclass objder;
+                        bptr=&objder;  // pointer pointing to derived class object
+                        bptr->display();  // runs display function of derived class
+                        return 0;
+                }
+```
+Rules for Virtual Functions :
+1. They cannot be static
+2. They are accessed by object pointers
+3. Virtual functions can be a friend of another class
+4. A function in base class might not be used
+5. If a virtual function is derived in base class there no necessity of redefining it in the derived class
+
+Example -
+```cpp
+                #include<iostream>
+                #include<cstring>
+                using namespace std;
+
+                class yt{
+                        protected:
+                        string title;
+                        float rating;
+                        public:
+                        yt(string s,float r){
+                                title=s;
+                                rating=r;
+                        }
+                        virtual void display(){};
+                };
+
+                class ytvideo : public yt{
+                        float videolength;
+                        public:
+                        ytvideo(string s,float r, float vl) : yt(s,r){
+                                videolength=vl;
+
+                        }
+                        void display(){
+                                cout<<"This video has amazing tiite "<<title<<endl;
+                                cout<<"Ratings: "<<rating<<endl;
+                                cout<<"Length of this video is "<<videolength<<" minutes"<<endl;
+                        }
+                };
+
+                class yttext : public yt{
+                        int words;
+                        public:
+                        yttext(string s,float r,int wc) : yt(s,r){
+                                words=wc;
+                        }
+                        void display(){
+                                cout<<"This text tutoria has  amazing tiite "<<title<<endl;
+                                cout<<"Ratings of this text : "<<rating<<endl;
+                                cout<<"No of words for this tutorial are: "<<words<<" words"<<endl;
+                        }
+                };
+
+                int main(){
+                        string title;
+                        float rating,vidlength;
+                        int words;
+                        // for yt video
+                        title=" Amazing CPP tutorial ";
+                        rating=4.8;
+                        vidlength=12.9;
+                        ytvideo obj1(title,rating,vidlength);
+                        // obj1.display();
+                        // for yt text
+                        title=" Amazing CPP text ";
+                        rating=4.13;
+                        words=197;
+                        yttext obj2(title,rating,words);
+                        // obj2.display();
+                        yt *lect[2];
+                        lect[0]=&obj1;
+                        lect[1]=&obj2;
+
+                        lect[0]->display();
+
+                        return 0;
+                }
+```
+
+## Abstract Base class & Pure virtual Functions
+When defining a base class we add a virtual function in it and when we redefine that function in a derived class
+the derived class object calls the redefined derived class function but when there is no redifination of virtual function
+in the derived class the virtual function of base class is called when we want that there should always be a redefination 
+of the base class virtual function in the derived class we make the function pure virtual or do nothing function.
+
+syntax-
+```cpp
+        virtual void display()=0; // if there is no redifination in derived class it will give an error
+```
+Abstarct base class is a concept which says that we should create a base class for derving other classes but an 
+object is never made out of that class or it is a class that atleast have one pure virtual function.
+
+## File I/O in C++
+- File is a collection of data stored on the memory or disk
+- Input stream helps the program to read from a file whereas an output stream helps the program to write to a file.
+
+To work with files in C++ we need some classes which are stored in the header file <fstream> and we need to include these header files into the program.
+
+The useful classes for working with files in C++ are -
+1. `fstreambase`
+2. `ifstream` --> derived from fstreambase
+3. `ofstream` --> derived from fstreambase
+
+In order to start working with a file we first have to open the file in a C++ program and there are primarily
+two ways of opening a file in C++ -
+1. Using the constructor - `ofstream objectname ("filename");`
+2. Using the member function open() of the class - `ofstream objectname;
+                                                          object.open("filename");`
+
+### Syntax for writing to a file:
+```cpp
+                ofstream objectname("filename");
+                object<<string;
+```
+
+Syntax for reading from a file:
+```cpp
+                ifstream objectname("filename");
+                object>>string; // one word reading
+                getline(object,string); // reading a whole line;
+```
+
+When reading with ifstream and using `in>>string;` it reads only one word and terminates after spaces or new
+line to solve this we use `getline(in,stringname)` so that a full line can be read.
+
+Sample program to create and write to a file :
+```cpp
+                #include<iostream>
+                #include<fstream>
+                using namespace std;
+
+                int main(){
+                        string st="Hello welcome to my github C++ ";
+                        // Opening file using constructor and writing to it
+                        ofstream out("samplefile.txt"); // write operation & out is an object name (can be any)
+                        out<<st;
+                        return 0;
+                }
+```        
+Sample program to read from a file:
+```cpp
+                #include<iostream>
+                #include<fstream>
+                using namespace std;
+
+                int main(){
+                        string st2;
+                        // Opening files using constructor and reading from it
+                        ifstream in("samplefile.txt"); // read operation
+                        in>>st2; // reads one word till space or new line & in is an object name and can be any
+                        getline(in,st2);  //reads whole line 
+                        cout<<st2;
+                        return 0;
+                }
+```
+Program to let user enter name store it in a file and read the content :
+```cpp
+                #include<iostream>
+                #include<fstream>
+                using namespace std;
+
+                int main(){
+                        // connecting our file with hout stream
+                        ofstream hout("samplefile.txt");  // opening file using first method i.e constructor
+                        string name;
+                        cout<<"Enter your name ";
+                        cin>>name;
+                        // writing a string to the file
+                        hout<<"My name is "+ name;
+                        hout.close(); // will close the output stream
+                        // connectig our file with hin stream
+                        ifstream hin("samplefile.txt");
+                        string readname;
+                        // reading line from the file
+                        getline(hin,readname);
+                        cout<<readname;
+                        hin.close();
+                        return 0;
+                }
+```        
+## Reading from a file using .eof() end of file function -
+```cpp
+                #include<iostream>
+                #include<fstream>
+                #include<string>
+                using namespace std;
+
+                int main(){
+                        ofstream out;
+                        out.open("samplefile.txt");  // opening file the other way using member function of class
+                        out<<"This is me \n";
+                        out<<"This also me \n";
+                        out<<"This is also also me  \n";
+                        out.close();
+                        ifstream in;
+                        string st;
+                        in.open("samplefile.txt");
+                        while(in.eof()==0){           // .eof() is used for end of file
+                                getline(in,st);
+                                cout<<st<<endl;
+                        }
+                        in.close();
+                        return 0;
+                }
+```
+
+## Templates in C++ 
+Templates are also known as classes with parameters because here we declare only one class and can call
+that class with multiple datatypes. A template is a base for many classes.
+
+Syntax for Class template-
+```cpp
+                template <class t>   // t can be anything float char int
+                class vector{
+                        t *arr;
+                        public:
+                        vector(){};   // coding of class a usual
+                }
+                int main(){
+                        vector<int> myvector(constrcutor args if any) // creating object with template
+                        vector<float> myfloatvector();
+                }
+        Using Class templates to find out dot-product :
+                #include<iostream>
+                using namespace std;
+
+                template <class t>   // using template
+                class vector{
+                        public:
+                        t *arr;
+                        int size;
+                        vector(int m){
+                                size=m;
+                                arr=new t[size];
+                        } 
+                        t dotproduct(vector &v){
+                                t d=0;
+                                for(int i=0;i<size;i++){
+                                        d+=this->arr[i]*v.arr[i];
+                                }
+                                return d;
+                        }
+                };
+
+                int main(){
+                        vector<float> v1(3);
+                        v1.arr[0]=1.4;
+                        v1.arr[1]=3.3;
+                        v1.arr[2]=0.1;
+                        vector<float> v2(3);
+                        v2.arr[0]=0.1;
+                        v2.arr[1]=1.90;
+                        v2.arr[2]=4.1;
+                        float a=v1.dotproduct(v2);
+                        cout<<a<<endl;
+                        return 0;
+                }
+```
+
+### Class Templates with multiple parameters
+Syntax-
+```cpp
+                template <class t1,class t2,as much you want>
+                class anything{
+                        class body;
+                }
+                int main(){
+                        anything_class<int,float> obj1;
+                }
+```        
+Example:
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                template <class t1,class t2>
+                class myclass{
+                        public:
+                        t1 data1;
+                        t2 data2;
+                        myclass(t1 a,t2 b){
+                                data1=a;
+                                data2=b;
+                        }
+                        void display(){
+                                cout<<this->data1<<endl;
+                                cout<<this->data2<<endl;
+                        }
+                };
+
+                int main(){
+                        myclass<int,char> obj(7,'c');
+                        obj.display();
+                        return 0;
+                }
+```
+### Class Templates with default parameters
+Synatax :
+```cpp
+                template <class t1=int,class t2=float>
+                class myclass{
+                        body
+                }
+                int main(){
+                        myclass <> obj1
+                }
+```
+
+Example -
+```cpp
+               #include<iostream>
+                using namespace std;
+
+                template <class t1=int,class t2=float>  // declaring template with default args
+                class chetan{
+                        public:
+                        t1 a;
+                        t2 b;
+                        chetan(t1 a,t2 b){
+                                this->a=a;
+                                this->b=b;
+                        }
+                        void display(){
+                                cout<<"The value of a is "<<a<<endl;
+                                cout<<"The value of a is "<<b<<endl;
+                        }
+
+                };
+
+                int main(){
+                        chetan<> c(4,6.7);  // uses defult suppiled datatypes when no args passed
+                        c.display();
+                        chetan<int,char> c1(4,'c');  // over-riding default args
+                        c1.display();
+                        return 0;
+                }
+```                
+
+## Function Template in C++
+Aame syntax as class templates refer the example below :
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                template <class t1,class t2>
+                float funcaverage(t1 a,t2 b){
+                        t2 avg=(a+b)/2;
+                        cout<<"Your average is "<<avg<<endl;
+                }
+
+                int main(){
+                        funcaverage(6,6.45);
+                        return 0;
+                }
+```                
+
+## Member Function Templates & Overloading Template Functions
+We can even overload function with same name where some functions are templatised and some are simple functions
+
+Example -
+```cpp
+                #include<iostream>
+                using namespace std;
+
+                template <class t>
+                class chetan{
+                        public:
+                        t data;
+                        chetan(t a){
+                                data=a;
+                        }
+                        void display();
+                };
+                template <class t>
+                void chetan<t> :: display(){  // this is the way to write templatised function outside class
+                        cout<<data<<endl;
+                } 
+
+                int func(int a){
+                        cout<<"I am normal func() "<<endl;
+                }
+
+                template <class t>
+                void func(t a){
+                        cout<<"I am templatised func() "<<endl;
+                }
+
+                int main(){
+                        chetan<char> obj1('c');
+                        obj1.display();
+                        func(4); // here normal func() will be called due to highest priority of exact match
+                        func('c'); // templatised func will be called
+                        return 0;
+                }
+```
+
+## Standard Template Library (STL)
+It is a libraray of generic classes and functions. Because when we use STL we are resuing well tested  components.
+
+Components of STL :
+1. `Containers` - stores data and uses template classes
+2. `Algorithms` - Procedure to process data and used to do various works like searching sorting and uses template functions
+3. `Iterators` - Object point to an element in a container. It is handeled just like pointers and connects Algorithms with containers.
+
+Types of Containers :
+1. `Sequence containers` - stores data in linear fashion eg- vector, list, dequeue
+2. `Associative containers` - use to direct access data/fast access eg- set, multiset, map, multimap
+3. `Derived containers` - Real world modelling eg- stack , queue, priority queue
+        
+### Vector -
+1. Random Access = fast
+2. Insertion/Deletion at middle = slow
+3. Insertion/Deletion at the end = fast
+        
+### List -
+1. Random Acess =slow
+2. Insertion/Deletion at middle = fast
+3. Insertion/Deletion at the end = fast
+        
+- Associative Containers - All operations fast except random access
+- Derived Conatiners - Depends
+
+### Vectors
+Vectors are sequence containers representing arrays that can change in size.
+syntax:
+```cpp
+                vector<datatype> variable_name;
+```                
+Synatax or creating iterators:
+```cpp
+                vector<datatype> :: iterator iteratorname = vectorname.begin();
+```                
+Example to understand Vector :
+```cpp
+                #include<iostream>
+                #include<vector>
+                using namespace std;
+
+                void display(vector<int> &v){
+                        for(int i=0;i<v.size();i++){
+                                cout<<v[i]<<" ";
+                        }
+                        cout<<endl;
+                }
+
+                int main(){
+                        vector<int> vec1; // creating zero length integer vector
+                        vector<char> vec2(5); // 5-element character vector
+                        vector<char> vec3(vec2); // 5-element character vector from vec-2
+                        vector<int>vec4(3,4);// will display 4 but 3 times
+                        int element;
+                        for (int i=0;i<4;i++){
+                                cout<<"Enter an element to add to this vector "<<endl;
+                                cin>>element;
+                                vec1.push_back(element);  // adds element to last
+                        }
+                        // vec1.pop_back();  // removes last element
+                        display(vec1);
+                        vector<int> :: iterator iter = vec1.begin(); // creating an iterator named iter which is basically a pointer pointing to first element
+                        // vec1.insert(iter,566); // inserting new element at position iter
+                        // display(vec1);
+                        vec1.insert(iter+1,5,788); // will add 788 5 times
+                        display(vec1);
+                        display(vec4);
+                        return 0;
+                }
+```
+
+## List in C++
+must include list as a header file to use
+
+Various functions of list through a program :
+```cpp
+                #include<iostream>
+                #include<list>
+                using namespace std;
+
+                void display(list<int> &lst){
+                        list<int> :: iterator it;
+                        for(it=lst.begin();it!=lst.end();it++){
+                                cout<<*it<<" ";
+                        }
+                        cout<<endl;
+
+                }
+
+                int main(){
+                        list<int> list1; //list of 0 length
+                        list<int> list2(3); // empty list of sie 7
+                        list1.push_back(5); // adds element at the last of the list
+                        list1.push_back(7);
+                        list1.push_back(1);
+                        list1.push_back(9);
+                        list1.push_back(12);
+                        display(list1);
+                        list<int> :: iterator iter;
+                        iter=list2.begin();
+                        *iter=34;
+                        iter++;
+                        *iter=99;
+                        iter++;
+                        *iter=14;
+                        display(list2);
+                        list1.pop_back(); // deletes the last element in the list
+                        list1.remove(1); // remove all occurences of the given element
+                        list1.sort(); // sorts the list
+                        list1.merge(list2); // merges the list 
+                        list1.reverse(); // reverses the list
+                        list1.swap(list2); // swaps the contents of the list
+                        display(list1);
+
+                        return 0;
+                }
+``` 
+
+## Map in C++ ( Can be considered like an object in Javascript or Dictionary in Python )
+Maps are associative containers that store elements in a mapped fashion. Each element has a key value and a mapped value. No two mapped values can have the same key values.
+
+Basic Functions with map -
+1. `begin()` – Returns an iterator to the first element in the map.
+2. `end()` – Returns an iterator to the theoretical element that follows the last element in the map.
+3. `size()` – Returns the number of elements in the map.
+4. `max_size()` – Returns the maximum number of elements that the map can hold.
+5. `empty()` – Returns whether the map is empty.
+6. `pair insert(keyvalue, mapvalue)` – Adds a new element to the map.
+7. `erase(iterator position)` – Removes the element at the position pointed by the iterator.
+8. `erase(const g)` – Removes the key-value ‘g’ from the map.
+9. `clear()` – Removes all the elements from the map.
+        
+Example -
+```cpp
+                #include<iostream>
+                #include<map>
+                #include<string>
+                using namespace std;
+
+                int main(){
+                        map<string,int> marksmap;
+                        marksmap["chetan"]=99;
+                        marksmap["rohan"]=73;
+                        marksmap["gohan"]=14;
+                        map<string,int> :: iterator iter;
+                        marksmap.insert({{"newentry",1}}); // inserting a new element
+                        iter=marksmap.begin(); // setting iter to beginning of map
+                        for(iter=marksmap.begin();iter!=marksmap.end();iter++){ 
+                                cout<<(*iter).first<<" "<<iter->second<<"\n"; // accessing key and value using iter(pointer)
+                        }
+                        cout<<"The size is: "<<marksmap.size(); // size of map
+                        return 0;
+                }
+```
+
+## Function Objects in C++ or Functor
+- To use must include header file functional
+- Function wrapped in a class so that it is available like an object
+
+Example -
+```cpp        
+                #include<iostream>
+                #include<functional>
+                #include<algorithm>
+                using namespace std;
+
+                int main(){
+                        int arr[]={1,2,55,67,88,9};
+                        sort(arr,arr+5,less<int>()); // sorts from 1 to 5 and the function object less<int>() implements x<y
+                        for(int i=0;i<6;i++){
+                                cout<<arr[i]<<endl;
+                        }
+                        return 0;
+                }
+```                
